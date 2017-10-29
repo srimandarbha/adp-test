@@ -1,0 +1,11 @@
+[Unit]
+Description = my-nginx.service 
+After = docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/my_nginx.sh
+ExecStop=/bin/docker rm -f site
+
+[Install]
+WantedBy = multi-user.target
