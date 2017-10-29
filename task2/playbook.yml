@@ -1,0 +1,73 @@
+---
+- hosts: all
+  vars:
+      df_path: '/vagrant'
+  become: yes
+  tasks:
+    - name: Disable selinux
+      selinux:
+         state: disabled
+
+    - name: ensure ntpd is at the latest version
+      yum: pkg={{ item }} state=latest
+      when: ansible_os_family == 'RedHat'
+      with_items:
+              - git
+              - python-setuptools
+              - docker
+              - httpd
+              - mod_proxy_html
+
+    - name: copy vhost to httpd
+      copy: 
+        dest: /etc/httpd/conf.d/vhost.conf
+        src: ./vhost.conf
+
+    - name: ensure pip 
+      easy_install: name=pip state=latest
+
+    - name: ensure docker deps
+      pip: name={{ item }} state=present
+      with_items:
+              - pip
+              - requests
+              - docker
+              - docker-py==1.7.0
+              - docker-compose
+
+    - name: Ensure docker started
+      service: 
+        name: docker
+        state: started
+      with_items:
+         - docker
+         - httpd
+
+    - name: 'add entries to hosts file'
+      lineinfile: 
+        dest: /etc/hosts
+        line: "{{ item }}"
+      with_items:
+         - '127.0.0.1 myfirstpage.com'
+         - '127.0.0.1 mysecondpage.com'
+         - '127.0.0.1 mythirdpage.com'
+
+    - name: pull nginx image
+      docker_image:
+              name: nginx
+
+    - name: Build my_nginx
+      docker_image:
+         name: my_nginx
+         state: present
+         path: "{{ df_path }}"
+
+    - name: launch instance
+      docker: 
+        name: site
+        image: my_nginx
+        state: restarted
+        volumes:
+          - "/vagrant:/usr/share/nginx/html"
+        ports:
+          - "8080:80"
