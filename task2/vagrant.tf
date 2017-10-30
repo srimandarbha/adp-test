@@ -12,7 +12,7 @@ resource "virtualbox_vm" "node" {
     }
     provisioner "local-exec" {
         inline = [
-            "touch /tmp/root_setup.sh",
+            "sleep 30 && echo -e \"[webserver]\n${element(virtualbox_vm.node.*.network_adapter.0.ipv4_address, 2)} ansible_connection=ssh ansible_ssh_user=vagrant ansible_ssh_pass=vagrant\" > inventory &&  ansible-playbook -i inventory playbook.yml",
         ]
         connection {
             type     = "ssh"
@@ -21,10 +21,4 @@ resource "virtualbox_vm" "node" {
         }
     }
 
-}
-output "IPAddr" {
-    value = "${element(virtualbox_vm.node.*.network_adapter.0.ipv4_address, 1)}"
-}
-output "IPAddr_2" {
-    value = "${element(virtualbox_vm.node.*.network_adapter.0.ipv4_address, 2)}"
 }
