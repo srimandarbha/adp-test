@@ -23,6 +23,11 @@
         dest: /etc/httpd/conf.d/vhost.conf
         src: ./vhost.conf
 
+    - name: copy my_nginx.sh script to /usr/local/
+      copy: 
+        dest: /usr/local/bin/my_nginx.sh
+        src: ./my_nginx.sh
+
     - name: ensure pip 
       easy_install: name=pip state=latest
 
