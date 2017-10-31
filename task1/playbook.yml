@@ -31,19 +31,8 @@
     - name: add my-nginx.service to systemd
       copy:
         dest: /usr/lib/systemd/system/my-nginx.service
-        src: ./my-nginx.service
-        
-    - name: coping necessary connfigs onto remote machine
-      copy: 
-        dest: "/vagrant/{{ item }}"
-        src: "./{{ item }}"
-      with_items:
-         - 1.html
-         - 2.html
-         - 3.html
-         - Dockerfile
-         - index.html
-        
+        src: ./my-nginx.service     
+       
     - name: ensure pip 
       easy_install: name=pip state=latest
 
