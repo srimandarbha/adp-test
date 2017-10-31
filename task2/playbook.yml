@@ -97,4 +97,5 @@
       systemd:
         name: my-nginx.service
         state: started
+        daemon-reload: yes
         enabled: True
