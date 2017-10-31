@@ -18,16 +18,32 @@
               - httpd
               - mod_proxy_html
 
+    - name: copy my_nginx.sh to bindir
+      copy: 
+       dest: /usr/local/bin/my_nginx.sh
+       src: ./my_nginx.sh
+       
     - name: copy vhost to httpd
       copy: 
         dest: /etc/httpd/conf.d/vhost.conf
         src: ./vhost.conf
-
-    - name: copy my_nginx.sh script to /usr/local/
+        
+    - name: add my-nginx.service to systemd
+      copy:
+        dest: /usr/lib/systemd/system/my-nginx.service
+        src: ./my-nginx.service
+        
+    - name: coping necessary connfigs onto remote machine
       copy: 
-        dest: /usr/local/bin/my_nginx.sh
-        src: ./my_nginx.sh
-
+        dest: "/vagrant/{{ item }}"
+        src: "./{{ item }}"
+      with_items:
+         - 1.html
+         - 2.html
+         - 3.html
+         - Dockerfile
+         - index.html
+        
     - name: ensure pip 
       easy_install: name=pip state=latest
 
@@ -76,3 +92,9 @@
           - "/vagrant:/usr/share/nginx/html"
         ports:
           - "8080:80"
+          
+    - name: daemon-reload my-nginx.service
+      systemd:
+        name: my-nginx.service
+        state: started
+        enabled: True
